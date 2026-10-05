@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseServerEnv } from './env'
+import { parseEmailFrom, parseServerEnv } from './env'
 
 const base = {
   DATABASE_URI: 'postgres://user:pass@localhost:5433/db',
@@ -10,6 +10,7 @@ const base = {
 
 const productionExtras = {
   RESEND_API_KEY: 're_test',
+  EMAIL_FROM: 'Smart Care <inquiries@example.com>',
   CONTACT_FALLBACK_EMAIL: 'contact@example.com',
   TURNSTILE_SITE_KEY: 'site',
   TURNSTILE_SECRET_KEY: 'secret',
@@ -36,5 +37,26 @@ describe('parseServerEnv', () => {
     expect(() => parseServerEnv({ ...base, PAYLOAD_SECRET: 'short' }, false)).toThrow(
       /PAYLOAD_SECRET/,
     )
+  })
+})
+
+describe('parseEmailFrom', () => {
+  it('splits "Name <address>"', () => {
+    expect(parseEmailFrom('Smart Care <inquiries@example.com>')).toEqual({
+      name: 'Smart Care',
+      address: 'inquiries@example.com',
+    })
+  })
+
+  it('accepts a plain address with a fallback name', () => {
+    expect(parseEmailFrom('inquiries@example.com', 'Fallback')).toEqual({
+      name: 'Fallback',
+      address: 'inquiries@example.com',
+    })
+  })
+
+  it('rejects malformed values', () => {
+    expect(() => parseEmailFrom('not an email')).toThrow()
+    expect(() => parseServerEnv({ ...base, EMAIL_FROM: 'nope' }, false)).toThrow(/EMAIL_FROM/)
   })
 })

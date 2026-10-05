@@ -75,6 +75,20 @@
 
   /* Layout */
   --container-page: 80rem;
+
+  /* Motion */
+  /* Duration is set per element (it depends on the number of items). */
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* --marquee-direction is -1 in RTL, so the track moves the other way. */
+      transform: translateX(calc(-50% * var(--marquee-direction, 1)));
+    }
+  }
 }
 
 /* Visible keyboard focus for every interactive element. */

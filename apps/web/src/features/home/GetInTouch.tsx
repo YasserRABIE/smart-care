@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/icons'
 import { InquiryForm } from '@/features/contact/InquiryForm'
 import { mailtoHref, telHref, whatsappHref } from '@/lib/contact-links'
+import { env } from '@/lib/env'
 import type { HomePage, SiteSetting } from '@/payload-types'
 import { messages } from '@/messages/en'
 
@@ -57,7 +58,7 @@ export function GetInTouch({ sections, settings }: GetInTouchProps) {
           <span className="sr-only"> {messages.common.opensInNewTab}</span>
         </Button>
       </div>
-      <InquiryForm id="home-inquiry" />
+      <InquiryForm id="home-inquiry" sourcePage="/" turnstileSiteKey={env.TURNSTILE_SITE_KEY} />
     </div>
   )
 }

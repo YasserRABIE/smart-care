@@ -33,6 +33,17 @@ export const ContactPage: GlobalConfig = {
             { name: 'body', type: 'textarea', required: true },
             { name: 'expectTitle', type: 'text', required: true, defaultValue: 'What to expect' },
             {
+              name: 'productSubjectTemplate',
+              label: 'Subject for product inquiries',
+              type: 'text',
+              required: true,
+              defaultValue: 'Needing help with {product}',
+              admin: {
+                description:
+                  'Prefilled when a visitor clicks "Send Inquiry" on a product. {product} is replaced with the product name.',
+              },
+            },
+            {
               name: 'expectations',
               type: 'array',
               minRows: 1,

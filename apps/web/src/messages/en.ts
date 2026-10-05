@@ -28,6 +28,13 @@ export const messages = {
     message: 'Message',
     messagePlaceholder: 'Type your message here...',
     submit: 'Send Inquiry',
+    sending: 'Sending…',
+    about: 'About',
+    removeProduct: 'Remove product from inquiry',
+    honeypot: 'Leave this field empty',
+    successTitle: 'Message sent',
+    successBody: 'Thank you for reaching out. Our team will get back to you shortly.',
+    sendAnother: 'Send another message',
   },
   contact: {
     openMap: 'Open our location in Google Maps',

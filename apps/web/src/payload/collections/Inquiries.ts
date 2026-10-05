@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { hiddenFromEditors, isAdmin, nobody } from '../access'
+import { sendInquiryEmail } from '../hooks/sendInquiryEmail'
 
 /**
  * Created only by the contact form server action (Local API, `overrideAccess: true`).
@@ -16,6 +17,9 @@ export const Inquiries: CollectionConfig = {
     hidden: hiddenFromEditors,
   },
   defaultSort: '-createdAt',
+  hooks: {
+    afterChange: [sendInquiryEmail],
+  },
   access: {
     create: nobody,
     read: isAdmin,

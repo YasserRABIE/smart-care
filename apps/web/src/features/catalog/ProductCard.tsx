@@ -48,7 +48,7 @@ export function ProductCard({
       </div>
       <div className="mt-auto px-5 pt-0 pb-5 sm:py-4">
         <Button
-          href={`/contact?product=${encodeURIComponent(product.slug)}`}
+          href={`/contact?product=${encodeURIComponent(product.slug)}#inquiry`}
           fullWidth
           trailingIcon={ArrowUpRightIcon}
         >

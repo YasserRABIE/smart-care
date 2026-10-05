@@ -5,6 +5,17 @@ import { z } from 'zod'
 const isProduction =
   process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build'
 
+const emailFromPattern = /^(?:(.+?)\s*<([^<>\s]+@[^<>\s]+)>|([^<>\s]+@[^<>\s]+))$/
+
+/** Split `EMAIL_FROM` into the name and address the email adapter expects. */
+export function parseEmailFrom(value: string, fallbackName = 'Smart Care Medical') {
+  const match = value.trim().match(emailFromPattern)
+  if (!match) throw new Error(`Invalid EMAIL_FROM: ${value}`)
+  return match[3]
+    ? { name: fallbackName, address: match[3] }
+    : { name: match[1] ?? fallbackName, address: match[2] as string }
+}
+
 /** Server-only variables. Optional ones are only optional outside production. */
 export function createServerEnvSchema(production: boolean) {
   const requiredInProduction = <T extends z.ZodType>(schema: T) =>
@@ -15,6 +26,10 @@ export function createServerEnvSchema(production: boolean) {
     PAYLOAD_SECRET: z.string().min(32, 'PAYLOAD_SECRET must be at least 32 characters'),
     NEXT_PUBLIC_SITE_URL: z.url(),
     RESEND_API_KEY: requiredInProduction(z.string().startsWith('re_')),
+    /** Sender, e.g. `Smart Care <inquiries@smartcareco.com>`. Must be on a Resend-verified domain. */
+    EMAIL_FROM: requiredInProduction(
+      z.string().regex(emailFromPattern, 'Use "Name <address@domain>" or a plain address'),
+    ),
     CONTACT_FALLBACK_EMAIL: requiredInProduction(z.email()),
     TURNSTILE_SITE_KEY: requiredInProduction(z.string().min(1)),
     TURNSTILE_SECRET_KEY: requiredInProduction(z.string().min(1)),

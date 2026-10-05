@@ -733,6 +733,10 @@ export interface ContactPage {
     title: string
     body: string
     expectTitle: string
+    /**
+     * Prefilled when a visitor clicks "Send Inquiry" on a product. {product} is replaced with the product name.
+     */
+    productSubjectTemplate: string
     expectations?:
       | {
           text: string
@@ -865,6 +869,7 @@ export interface ContactPageSelect<T extends boolean = true> {
         title?: T
         body?: T
         expectTitle?: T
+        productSubjectTemplate?: T
         expectations?:
           | T
           | {

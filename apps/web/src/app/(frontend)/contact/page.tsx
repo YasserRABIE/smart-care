@@ -13,7 +13,10 @@ import { FaqList } from '@/features/contact/FaqList'
 import { InquiryForm } from '@/features/contact/InquiryForm'
 import { LocationMap } from '@/features/contact/LocationMap'
 import { PartnersStrip } from '@/features/partners/PartnersStrip'
+import { productSubject } from '@/features/contact/subject'
+import { getProductBySlug } from '@/lib/data/catalog'
 import { getContactPage, getFaqs, getPartners, getSiteSettings } from '@/lib/data/content'
+import { env } from '@/lib/env'
 import { toImage } from '@/lib/media'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,21 +25,28 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: 'Contact', description: page.intro.body }
 }
 
-export default function ContactPage() {
+export default function ContactPage({ searchParams }: PageProps<'/contact'>) {
   return (
     <Suspense fallback={<ContactSkeleton />}>
-      <ContactContent />
+      <ContactContent searchParams={searchParams} />
     </Suspense>
   )
 }
 
-async function ContactContent() {
+const SLUG = /^[a-z0-9-]{1,200}$/
+
+async function ContactContent({ searchParams }: Pick<PageProps<'/contact'>, 'searchParams'>) {
   await connection()
-  const [page, settings, faqs, partners] = await Promise.all([
+  const { product: rawSlug } = await searchParams
+  const slug = typeof rawSlug === 'string' && SLUG.test(rawSlug) ? rawSlug : undefined
+
+  const [page, settings, faqs, partners, product] = await Promise.all([
     getContactPage(),
     getSiteSettings(),
     getFaqs(),
     getPartners(),
+    // "Send Inquiry" on a product links here with ?product=<slug>. Unknown slugs are ignored.
+    slug ? getProductBySlug(slug) : null,
   ])
 
   return (
@@ -50,7 +60,20 @@ async function ContactContent() {
       <Section>
         <Container className="grid gap-12 lg:grid-cols-[25rem_1fr] lg:gap-16">
           <ContactSidebar intro={page.intro} />
-          <InquiryForm id="contact-inquiry" />
+          {/* Product "Send Inquiry" links land here (#inquiry). */}
+          <div id="inquiry">
+            <InquiryForm
+              id="contact-inquiry"
+              sourcePage="/contact"
+              product={product && { slug: product.slug, title: product.title }}
+              defaultSubject={
+                product
+                  ? productSubject(page.intro.productSubjectTemplate, product.title)
+                  : undefined
+              }
+              turnstileSiteKey={env.TURNSTILE_SITE_KEY}
+            />
+          </div>
         </Container>
       </Section>
 

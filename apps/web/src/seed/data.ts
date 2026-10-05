@@ -363,6 +363,7 @@ export const contactPage = {
     title: 'Enterprise Surgical Procurement',
     body: 'Our medical product experts are ready to assist you with instrument customization, volume quotes, and clinic implementation trials.',
     expectTitle: 'What to expect',
+    productSubjectTemplate: 'Needing help with {product}',
     expectations: [
       { text: 'Response within 12 business hours' },
       { text: 'Direct specialist consultation access' },
