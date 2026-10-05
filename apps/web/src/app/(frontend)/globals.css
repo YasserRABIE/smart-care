@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+/*
+ * Placeholder tokens for Phase 1. Phase 2 replaces these with the full set from the
+ * Figma variables (file rDltaXMELvK7SJVvtuMZH0).
+ */
+@theme {
+  --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --color-fg-primary: #181d27;
+  --color-fg-secondary: #414651;
+  --color-fg-tertiary: #535862;
+  --color-brand-600: #237785;
+
+  --container-page: 1280px;
+}
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-fg-primary antialiased;
+  }
+}

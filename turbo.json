@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalDependencies": [".env", "apps/web/.env"],
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URI",
+    "PAYLOAD_SECRET",
+    "NEXT_PUBLIC_SITE_URL",
+    "RESEND_API_KEY",
+    "CONTACT_FALLBACK_EMAIL",
+    "TURNSTILE_SITE_KEY",
+    "TURNSTILE_SECRET_KEY",
+    "SKIP_ENV_VALIDATION",
+    "NEXT_PHASE"
+  ],
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "lint": {},
+    "typecheck": {},
+    "test": {}
+  }
+}
