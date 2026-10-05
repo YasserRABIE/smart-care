@@ -1,10 +1,23 @@
 import type { CollectionConfig } from 'payload'
 
+import { cacheTags } from '@/lib/data/tags'
+
+import { anyone, authenticated } from '../access'
+import { revalidateCollection } from '../hooks/revalidate'
+
 export const Media: CollectionConfig = {
   slug: 'media',
-  access: {
-    read: () => true,
+  admin: {
+    group: 'Content',
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
   },
+  access: {
+    read: anyone,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
+  },
+  hooks: revalidateCollection(cacheTags.media),
   fields: [
     {
       name: 'alt',

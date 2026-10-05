@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache'
 import Link from 'next/link'
 
 import { Container } from './Container'
@@ -5,8 +6,6 @@ import { Logo } from './Logo'
 import { mainNav } from './navigation'
 
 export function Footer() {
-  const year = new Date().getFullYear()
-
   return (
     <footer className="border-t border-line-subtle bg-white">
       <Container className="flex flex-col gap-8 pt-12 pb-10 md:flex-row md:items-start md:justify-between">
@@ -19,7 +18,7 @@ export function Footer() {
             <Logo variant="mono" />
           </Link>
           <p className="text-sm text-fg-quaternary">
-            © {year} Smart Care Medical. All rights reserved.
+            © <CopyrightYear /> Smart Care Medical. All rights reserved.
           </p>
         </div>
         <nav aria-label="Footer">
@@ -39,4 +38,11 @@ export function Footer() {
       </Container>
     </footer>
   )
+}
+
+/** Cached so the prerendered shell stays static; refreshes daily so the year rolls over. */
+async function CopyrightYear() {
+  'use cache'
+  cacheLife('days')
+  return new Date().getFullYear()
 }

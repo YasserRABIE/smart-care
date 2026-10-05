@@ -1,12 +1,23 @@
 import type { CollectionConfig } from 'payload'
 
+import { hiddenFromEditors, isAdmin, isAdminField, isAdminOrSelf } from '../access'
+
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
+    group: 'Settings',
     useAsTitle: 'email',
     defaultColumns: ['email', 'name', 'role'],
+    hidden: hiddenFromEditors,
   },
   auth: true,
+  access: {
+    // The first user is created through /admin's register screen, which bypasses access.
+    create: isAdmin,
+    read: isAdminOrSelf,
+    update: isAdminOrSelf,
+    delete: isAdmin,
+  },
   fields: [
     {
       name: 'name',
@@ -23,8 +34,11 @@ export const Users: CollectionConfig = {
         { label: 'Editor', value: 'editor' },
       ],
       access: {
-        // Only admins can promote or demote users. Full access control lands in Phase 3.
-        update: ({ req: { user } }) => user?.role === 'admin',
+        // Only admins can promote or demote users.
+        update: isAdminField,
+      },
+      admin: {
+        description: 'Editors manage site content. Admins also manage users and inquiries.',
       },
     },
   ],

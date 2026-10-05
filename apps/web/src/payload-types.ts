@@ -67,8 +67,14 @@ export interface Config {
   }
   blocks: {}
   collections: {
-    users: User
+    'product-lines': ProductLine
+    categories: Category
+    products: Product
+    partners: Partner
+    faqs: Faq
     media: Media
+    inquiries: Inquiry
+    users: User
     'payload-kv': PayloadKv
     'payload-locked-documents': PayloadLockedDocument
     'payload-preferences': PayloadPreference
@@ -76,8 +82,14 @@ export interface Config {
   }
   collectionsJoins: {}
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>
+    'product-lines': ProductLinesSelect<false> | ProductLinesSelect<true>
+    categories: CategoriesSelect<false> | CategoriesSelect<true>
+    products: ProductsSelect<false> | ProductsSelect<true>
+    partners: PartnersSelect<false> | PartnersSelect<true>
+    faqs: FaqsSelect<false> | FaqsSelect<true>
     media: MediaSelect<false> | MediaSelect<true>
+    inquiries: InquiriesSelect<false> | InquiriesSelect<true>
+    users: UsersSelect<false> | UsersSelect<true>
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
     'payload-locked-documents':
       PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>
@@ -88,8 +100,16 @@ export interface Config {
     defaultIDType: number
   }
   fallbackLocale: null
-  globals: {}
-  globalsSelect: {}
+  globals: {
+    'home-page': HomePage
+    'contact-page': ContactPage
+    'site-settings': SiteSetting
+  }
+  globalsSelect: {
+    'home-page': HomePageSelect<false> | HomePageSelect<true>
+    'contact-page': ContactPageSelect<false> | ContactPageSelect<true>
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>
+  }
   locale: null
   widgets: {
     collections: CollectionsWidget
@@ -120,31 +140,39 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "product-lines".
  */
-export interface User {
+export interface ProductLine {
   id: number
-  name?: string | null
-  role: 'admin' | 'editor'
+  title: string
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null
+  slug: string
+  /**
+   * Shown in the catalog banner under the title.
+   */
+  description: string
+  coverImage: number | Media
+  /**
+   * Link text on the home page card, e.g. "Browse Instruments".
+   */
+  ctaLabel: string
+  /**
+   * Inquiries about this line are emailed here. Leave empty to use the default inbox.
+   */
+  notifyEmail?: string | null
+  /**
+   * Lower numbers show first.
+   */
+  order?: number | null
+  seo?: {
+    title?: string | null
+    description?: string | null
+  }
   updatedAt: string
   createdAt: string
-  email: string
-  resetPasswordToken?: string | null
-  resetPasswordExpiration?: string | null
-  salt?: string | null
-  hash?: string | null
-  resetPasswordRequestedAt?: string | null
-  loginAttempts?: number | null
-  lockUntil?: string | null
-  sessions?:
-    | {
-        id: string
-        createdAt?: string | null
-        expiresAt: string
-      }[]
-    | null
-  password?: string | null
-  collection: 'users'
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -196,6 +224,138 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number
+  title: string
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null
+  slug: string
+  productLine: number | ProductLine
+  /**
+   * Lower numbers show first.
+   */
+  order?: number | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: number
+  title: string
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null
+  slug: string
+  /**
+   * One or two sentences shown on the product card.
+   */
+  description: string
+  image: number | Media
+  productLine: number | ProductLine
+  category?: (number | null) | Category
+  /**
+   * Lower numbers show first.
+   */
+  order?: number | null
+  updatedAt: string
+  createdAt: string
+  _status?: ('draft' | 'published') | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners".
+ */
+export interface Partner {
+  id: number
+  name: string
+  /**
+   * Transparent PNG or SVG works best.
+   */
+  logo: number | Media
+  url?: string | null
+  /**
+   * Lower numbers show first.
+   */
+  order?: number | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number
+  question: string
+  answer: string
+  /**
+   * Lower numbers show first.
+   */
+  order?: number | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries".
+ */
+export interface Inquiry {
+  id: number
+  status: 'new' | 'contacted' | 'closed'
+  name: string
+  email: string
+  subject: string
+  message: string
+  product?: (number | null) | Product
+  productLine?: (number | null) | ProductLine
+  /**
+   * The page the form was sent from.
+   */
+  sourcePage?: string | null
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number
+  name?: string | null
+  /**
+   * Editors manage site content. Admins also manage users and inquiries.
+   */
+  role: 'admin' | 'editor'
+  updatedAt: string
+  createdAt: string
+  email: string
+  resetPasswordToken?: string | null
+  resetPasswordExpiration?: string | null
+  salt?: string | null
+  hash?: string | null
+  resetPasswordRequestedAt?: string | null
+  loginAttempts?: number | null
+  lockUntil?: string | null
+  sessions?:
+    | {
+        id: string
+        createdAt?: string | null
+        expiresAt: string
+      }[]
+    | null
+  password?: string | null
+  collection: 'users'
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -219,12 +379,36 @@ export interface PayloadLockedDocument {
   id: number
   document?:
     | ({
-        relationTo: 'users'
-        value: number | User
+        relationTo: 'product-lines'
+        value: number | ProductLine
+      } | null)
+    | ({
+        relationTo: 'categories'
+        value: number | Category
+      } | null)
+    | ({
+        relationTo: 'products'
+        value: number | Product
+      } | null)
+    | ({
+        relationTo: 'partners'
+        value: number | Partner
+      } | null)
+    | ({
+        relationTo: 'faqs'
+        value: number | Faq
       } | null)
     | ({
         relationTo: 'media'
         value: number | Media
+      } | null)
+    | ({
+        relationTo: 'inquiries'
+        value: number | Inquiry
+      } | null)
+    | ({
+        relationTo: 'users'
+        value: number | User
       } | null)
   globalSlug?: string | null
   user: {
@@ -270,28 +454,78 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "product-lines_select".
  */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T
-  role?: T
-  updatedAt?: T
-  createdAt?: T
-  email?: T
-  resetPasswordToken?: T
-  resetPasswordExpiration?: T
-  salt?: T
-  hash?: T
-  resetPasswordRequestedAt?: T
-  loginAttempts?: T
-  lockUntil?: T
-  sessions?:
+export interface ProductLinesSelect<T extends boolean = true> {
+  title?: T
+  generateSlug?: T
+  slug?: T
+  description?: T
+  coverImage?: T
+  ctaLabel?: T
+  notifyEmail?: T
+  order?: T
+  seo?:
     | T
     | {
-        id?: T
-        createdAt?: T
-        expiresAt?: T
+        title?: T
+        description?: T
       }
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T
+  generateSlug?: T
+  slug?: T
+  productLine?: T
+  order?: T
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  title?: T
+  generateSlug?: T
+  slug?: T
+  description?: T
+  image?: T
+  productLine?: T
+  category?: T
+  order?: T
+  updatedAt?: T
+  createdAt?: T
+  _status?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners_select".
+ */
+export interface PartnersSelect<T extends boolean = true> {
+  name?: T
+  logo?: T
+  url?: T
+  order?: T
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect<T extends boolean = true> {
+  question?: T
+  answer?: T
+  order?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -347,6 +581,47 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries_select".
+ */
+export interface InquiriesSelect<T extends boolean = true> {
+  status?: T
+  name?: T
+  email?: T
+  subject?: T
+  message?: T
+  product?: T
+  productLine?: T
+  sourcePage?: T
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  name?: T
+  role?: T
+  updatedAt?: T
+  createdAt?: T
+  email?: T
+  resetPasswordToken?: T
+  resetPasswordExpiration?: T
+  salt?: T
+  hash?: T
+  resetPasswordRequestedAt?: T
+  loginAttempts?: T
+  lockUntil?: T
+  sessions?:
+    | T
+    | {
+        id?: T
+        createdAt?: T
+        expiresAt?: T
+      }
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -384,6 +659,255 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T
   updatedAt?: T
   createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number
+  hero: {
+    title: string
+    subtitle: string
+    image: number | Media
+    primaryCtaLabel: string
+    secondaryCtaLabel: string
+  }
+  about: {
+    title: string
+    intro: string
+    /**
+     * Up to six. The grid alternates wide and narrow cards.
+     */
+    stats?:
+      | {
+          /**
+           * For example "500+".
+           */
+          value: string
+          label: string
+          description: string
+          id?: string | null
+        }[]
+      | null
+  }
+  sections: {
+    productLinesTitle: string
+    partnersTitle: string
+    contactTitle: string
+    contactIntro: string
+    whatsappLabel: string
+  }
+  updatedAt?: string | null
+  createdAt?: string | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-page".
+ */
+export interface ContactPage {
+  id: number
+  hero: {
+    title: string
+    image: number | Media
+  }
+  intro: {
+    eyebrow: string
+    title: string
+    body: string
+    expectTitle: string
+    expectations?:
+      | {
+          text: string
+          id?: string | null
+        }[]
+      | null
+  }
+  channels: {
+    eyebrow: string
+    title: string
+    phoneTitle: string
+    emailTitle: string
+    addressTitle: string
+    /**
+     * Small line under the email address.
+     */
+    emailNote?: string | null
+  }
+  map: {
+    /**
+     * Links to the Google Maps URL in Site settings.
+     */
+    image: number | Media
+  }
+  sections: {
+    faqEyebrow: string
+    faqTitle: string
+    partnersTitle: string
+  }
+  updatedAt?: string | null
+  createdAt?: string | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number
+  phone: string
+  email: string
+  /**
+   * Digits only, with the country code. For example 20123456789.
+   */
+  whatsappNumber: string
+  /**
+   * For example "Sun–Thu 8:00 AM – 5:00 PM".
+   */
+  workingHours: string
+  address: {
+    /**
+     * For example "Cairo Medical Hub, Sector 4".
+     */
+    street: string
+    city: string
+    country: string
+  }
+  mapUrl?: string | null
+  seo: {
+    siteName: string
+    /**
+     * Used on pages that do not set their own title.
+     */
+    title: string
+    description: string
+    /**
+     * Shown when the site is shared. 1200 × 630 works best.
+     */
+    image?: (number | null) | Media
+  }
+  updatedAt?: string | null
+  createdAt?: string | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        title?: T
+        subtitle?: T
+        image?: T
+        primaryCtaLabel?: T
+        secondaryCtaLabel?: T
+      }
+  about?:
+    | T
+    | {
+        title?: T
+        intro?: T
+        stats?:
+          | T
+          | {
+              value?: T
+              label?: T
+              description?: T
+              id?: T
+            }
+      }
+  sections?:
+    | T
+    | {
+        productLinesTitle?: T
+        partnersTitle?: T
+        contactTitle?: T
+        contactIntro?: T
+        whatsappLabel?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  globalType?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-page_select".
+ */
+export interface ContactPageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        title?: T
+        image?: T
+      }
+  intro?:
+    | T
+    | {
+        eyebrow?: T
+        title?: T
+        body?: T
+        expectTitle?: T
+        expectations?:
+          | T
+          | {
+              text?: T
+              id?: T
+            }
+      }
+  channels?:
+    | T
+    | {
+        eyebrow?: T
+        title?: T
+        phoneTitle?: T
+        emailTitle?: T
+        addressTitle?: T
+        emailNote?: T
+      }
+  map?:
+    | T
+    | {
+        image?: T
+      }
+  sections?:
+    | T
+    | {
+        faqEyebrow?: T
+        faqTitle?: T
+        partnersTitle?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  globalType?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  phone?: T
+  email?: T
+  whatsappNumber?: T
+  workingHours?: T
+  address?:
+    | T
+    | {
+        street?: T
+        city?: T
+        country?: T
+      }
+  mapUrl?: T
+  seo?:
+    | T
+    | {
+        siteName?: T
+        title?: T
+        description?: T
+        image?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  globalType?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

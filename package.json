@@ -16,7 +16,8 @@
     "format:check": "prettier --check .",
     "db:up": "docker compose -f docker/docker-compose.dev.yml up -d --wait",
     "db:down": "docker compose -f docker/docker-compose.dev.yml down",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "pnpm --filter @smart-care/web seed"
   },
   "devDependencies": {
     "@smart-care/config": "workspace:*",
