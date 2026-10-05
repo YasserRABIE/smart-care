@@ -1,23 +1,101 @@
 @import 'tailwindcss';
 
 /*
- * Placeholder tokens for Phase 1. Phase 2 replaces these with the full set from the
- * Figma variables (file rDltaXMELvK7SJVvtuMZH0).
+ * Design tokens from the Smart-Care Figma file (rDltaXMELvK7SJVvtuMZH0).
+ * Default palettes and type scales are reset so components can only use these tokens.
+ * Loose Figma hex values were normalised to the nearest token (see Phase 2 plan).
  */
 @theme {
+  /* Fonts */
   --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Colors */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-brand-50: #eef8f9;
+  --color-brand-500: #429fb1;
+  --color-brand-600: #26798a;
+  --color-brand-700: #1f6472;
+  --color-brand-900: #1a515c;
 
   --color-fg-primary: #181d27;
   --color-fg-secondary: #414651;
   --color-fg-tertiary: #535862;
-  --color-brand-600: #237785;
+  --color-fg-quaternary: #717680;
+  --color-fg-subtle: #d5d7da;
 
-  --container-page: 1280px;
+  --color-line: #d5d7da;
+  --color-line-subtle: #e9eaeb;
+
+  --color-surface-muted: #f9f9f9;
+
+  --color-error-600: #d92d20;
+  --color-success-600: #079455;
+
+  /* Type scale (size / line-height / tracking) */
+  --text-*: initial;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-md: 1rem;
+  --text-md--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.875rem;
+  --text-display-xs: 1.5rem;
+  --text-display-xs--line-height: 2rem;
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: 2.375rem;
+  --text-display-md: 2.25rem;
+  --text-display-md--line-height: 2.75rem;
+  --text-display-md--letter-spacing: -0.02em;
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 3.75rem;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-xl: 3.75rem;
+  --text-display-xl--line-height: 4.5rem;
+  --text-display-xl--letter-spacing: -0.02em;
+
+  /* Radius */
+  --radius-*: initial;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.25rem;
+
+  /* Layout */
+  --container-page: 80rem;
+}
+
+/* Visible keyboard focus for every interactive element. */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
 }
 
 @layer base {
+  html {
+    scroll-padding-top: 6rem;
+  }
+
+  /* Lock page scroll while a modal <dialog> (mobile menu) is open. */
+  html:has(dialog[open]:modal) {
+    overflow: hidden;
+  }
+
   body {
-    @apply bg-white font-sans text-fg-primary antialiased;
+    @apply bg-white font-sans text-md text-fg-primary antialiased;
   }
 }
