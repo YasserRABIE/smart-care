@@ -25,6 +25,8 @@ export function Logo({ variant = 'default', priority, className }: LogoProps) {
       height={height}
       priority={priority}
       unoptimized
+      // CSS sets the width; keep the aspect ratio (and silence next/image's resize warning).
+      style={{ height: 'auto' }}
       className={cn('h-auto', className)}
     />
   )

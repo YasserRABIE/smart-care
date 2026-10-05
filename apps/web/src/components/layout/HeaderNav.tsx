@@ -10,13 +10,17 @@ import { cn } from '@/lib/utils'
 import { Logo } from './Logo'
 import { isActivePath, type NavItem } from './navigation'
 
-/**
- * Desktop links plus the mobile menu. A client component because the active link needs the
- * current pathname and the menu needs state. The menu is a modal <dialog>, which gives focus
- * trapping, Esc to close, and an inert background for free.
- */
+/** Reads the current path for the active link. Render inside <Suspense> (path is request data). */
 export function HeaderNav({ items }: { items: NavItem[] }) {
-  const pathname = usePathname()
+  return <HeaderNavView items={items} pathname={usePathname()} />
+}
+
+/**
+ * Desktop links plus the mobile menu. `pathname: null` renders without an active link (the
+ * Suspense fallback). The menu is a modal <dialog>, which gives focus trapping, Esc to close,
+ * and an inert background for free.
+ */
+export function HeaderNavView({ items, pathname }: { items: NavItem[]; pathname: string | null }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const menuId = useId()
 
@@ -33,7 +37,7 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
       <nav aria-label="Main" className="hidden md:block">
         <ul className="flex items-center gap-12">
           {items.map((item) => {
-            const active = isActivePath(pathname, item.href)
+            const active = pathname !== null && isActivePath(pathname, item.href)
             return (
               <li key={item.href}>
                 <Link
@@ -86,7 +90,7 @@ export function HeaderNav({ items }: { items: NavItem[] }) {
           <nav aria-label="Mobile">
             <ul className="flex flex-col p-2">
               {items.map((item) => {
-                const active = isActivePath(pathname, item.href)
+                const active = pathname !== null && isActivePath(pathname, item.href)
                 return (
                   <li key={item.href}>
                     <Link

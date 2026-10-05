@@ -81,6 +81,12 @@ export const HomePage: GlobalConfig = {
           label: 'Section headings',
           fields: [
             { name: 'productLinesTitle', type: 'text', required: true },
+            {
+              name: 'productsIntro',
+              type: 'textarea',
+              required: true,
+              admin: { description: 'Shown under the title on the /products page.' },
+            },
             { name: 'partnersTitle', type: 'text', required: true },
             { name: 'contactTitle', type: 'text', required: true },
             { name: 'contactIntro', type: 'textarea', required: true },

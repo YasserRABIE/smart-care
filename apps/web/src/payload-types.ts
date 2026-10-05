@@ -167,6 +167,13 @@ export interface ProductLine {
    * Lower numbers show first.
    */
   order?: number | null
+  catalog: {
+    /**
+     * For example "All Surgical Tools".
+     */
+    allLabel: string
+    searchPlaceholder: string
+  }
   seo?: {
     title?: string | null
     description?: string | null
@@ -465,6 +472,12 @@ export interface ProductLinesSelect<T extends boolean = true> {
   ctaLabel?: T
   notifyEmail?: T
   order?: T
+  catalog?:
+    | T
+    | {
+        allLabel?: T
+        searchPlaceholder?: T
+      }
   seo?:
     | T
     | {
@@ -693,6 +706,10 @@ export interface HomePage {
   }
   sections: {
     productLinesTitle: string
+    /**
+     * Shown under the title on the /products page.
+     */
+    productsIntro: string
     partnersTitle: string
     contactTitle: string
     contactIntro: string
@@ -820,6 +837,7 @@ export interface HomePageSelect<T extends boolean = true> {
     | T
     | {
         productLinesTitle?: T
+        productsIntro?: T
         partnersTitle?: T
         contactTitle?: T
         contactIntro?: T

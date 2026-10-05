@@ -53,6 +53,32 @@ export const ProductLines: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Lower numbers show first.' },
     },
     {
+      name: 'catalog',
+      label: 'Catalog page',
+      type: 'group',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'allLabel',
+              label: '"All" filter label',
+              type: 'text',
+              required: true,
+              defaultValue: 'All products',
+              admin: { description: 'For example "All Surgical Tools".' },
+            },
+            {
+              name: 'searchPlaceholder',
+              type: 'text',
+              required: true,
+              defaultValue: 'Search products...',
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'seo',
       type: 'group',
       label: 'SEO',

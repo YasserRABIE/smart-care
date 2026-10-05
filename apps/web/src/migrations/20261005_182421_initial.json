@@ -63,6 +63,20 @@
           "notNull": false,
           "default": 0
         },
+        "catalog_all_label": {
+          "name": "catalog_all_label",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'All products'"
+        },
+        "catalog_search_placeholder": {
+          "name": "catalog_search_placeholder",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Search products...'"
+        },
         "seo_title": {
           "name": "seo_title",
           "type": "varchar",
@@ -2631,6 +2645,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "sections_products_intro": {
+          "name": "sections_products_intro",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
         "sections_partners_title": {
           "name": "sections_partners_title",
           "type": "varchar",
@@ -3122,6 +3142,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "8b54a216-eea4-4837-92ff-7470829f7230",
+  "id": "50b8bd57-95ac-43f3-a432-9e6ae593f83c",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -133,6 +133,7 @@ async function seed() {
         description: line.description,
         coverImage: mediaIds[line.coverImage],
         ctaLabel: line.ctaLabel,
+        catalog: line.catalog,
         order: line.order,
       },
     )

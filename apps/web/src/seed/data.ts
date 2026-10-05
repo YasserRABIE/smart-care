@@ -41,6 +41,7 @@ export const productLines = [
       'Browse high-precision, trusted clinical instruments manufactured under strict clinical compliance for surgery rooms worldwide.',
     coverImage: 'lineSurgical',
     ctaLabel: 'Browse Instruments',
+    catalog: { allLabel: 'All Surgical Tools', searchPlaceholder: 'Search instruments...' },
     order: 1,
   },
   {
@@ -51,6 +52,7 @@ export const productLines = [
       'Hospital beds, stretchers, and examination furniture built for patient comfort and daily ward use.',
     coverImage: 'lineFurniture',
     ctaLabel: 'Explore Furniture',
+    catalog: { allLabel: 'All Furniture', searchPlaceholder: 'Search furniture...' },
     order: 2,
   },
   {
@@ -61,6 +63,7 @@ export const productLines = [
       'AI-assisted imaging and hospital software that help clinical teams reach decisions faster.',
     coverImage: 'lineAi',
     ctaLabel: 'View AI Solutions',
+    catalog: { allLabel: 'All Solutions', searchPlaceholder: 'Search solutions...' },
     order: 3,
   },
 ] as const satisfies ReadonlyArray<{ coverImage: MediaKey } & Record<string, unknown>>
@@ -342,6 +345,9 @@ export const homePage = {
   },
   sections: {
     productLinesTitle: 'Our Product Lines',
+    // PLACEHOLDER: not in the design
+    productsIntro:
+      'Surgical instruments, medical furniture, and AI diagnostics, sourced from trusted manufacturers and supported by our clinical team.',
     partnersTitle: 'Our Partners',
     contactTitle: 'Get In Touch',
     contactIntro:

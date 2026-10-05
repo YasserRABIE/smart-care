@@ -1,19 +1,88 @@
+import type { Metadata } from 'next'
+import { connection } from 'next/server'
+import { Suspense } from 'react'
+
 import { Container } from '@/components/layout/Container'
 import { Section } from '@/components/layout/Section'
-import { SectionHeading } from '@/components/layout/SectionHeading'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { AboutStats } from '@/features/home/AboutStats'
+import { GetInTouch } from '@/features/home/GetInTouch'
+import { Hero } from '@/features/home/Hero'
+import { ProductLinesGrid } from '@/features/home/ProductLinesGrid'
+import { PartnersStrip } from '@/features/partners/PartnersStrip'
+import { getProductLines } from '@/lib/data/catalog'
+import { getHomePage, getPartners, getSiteSettings } from '@/lib/data/content'
+
+export async function generateMetadata(): Promise<Metadata> {
+  await connection()
+  const settings = await getSiteSettings()
+  return {
+    title: { absolute: settings.seo.title },
+    description: settings.seo.description,
+  }
+}
 
 export default function HomePage() {
   return (
-    <Section>
+    <Suspense fallback={<HomeSkeleton />}>
+      <HomeContent />
+    </Suspense>
+  )
+}
+
+async function HomeContent() {
+  await connection()
+  const [home, lines, partners, settings] = await Promise.all([
+    getHomePage(),
+    getProductLines(),
+    getPartners(),
+    getSiteSettings(),
+  ])
+
+  return (
+    <>
       <Container size="wide">
-        <SectionHeading
-          as="h1"
-          size="lg"
-          eyebrow="Coming soon"
-          title="Smart Care Medical"
-          description="The home page is built in Phase 4."
-        />
+        <Hero hero={home.hero} />
       </Container>
-    </Section>
+
+      <Section spacing="lg" className="pt-16 md:pt-20 lg:pt-40">
+        <Container size="wide">
+          <AboutStats about={home.about} />
+        </Container>
+      </Section>
+
+      <Section spacing="lg" id="product-lines">
+        <Container size="wide" className="flex flex-col gap-12">
+          <h2 className="font-display text-display-md text-fg-primary md:text-display-lg">
+            {home.sections.productLinesTitle}
+          </h2>
+          <ProductLinesGrid lines={lines} />
+        </Container>
+      </Section>
+
+      <Section spacing="lg">
+        <Container size="wide">
+          <PartnersStrip partners={partners} title={home.sections.partnersTitle} />
+        </Container>
+      </Section>
+
+      <Section spacing="lg" className="pb-20 lg:pb-40">
+        <Container size="wide">
+          <GetInTouch sections={home.sections} settings={settings} />
+        </Container>
+      </Section>
+    </>
+  )
+}
+
+function HomeSkeleton() {
+  return (
+    <Container size="wide" aria-busy="true" aria-label="Loading">
+      <Skeleton className="h-140 rounded-xl md:h-160 lg:h-192" />
+      <div className="mt-16 grid gap-3 lg:mt-40 lg:grid-cols-3">
+        <Skeleton className="h-64 rounded-2xl lg:col-span-2" />
+        <Skeleton className="h-64 rounded-2xl" />
+      </div>
+    </Container>
   )
 }

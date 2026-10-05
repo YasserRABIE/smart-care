@@ -1,10 +1,10 @@
-import type { ComponentPropsWithoutRef } from 'react'
+import type { ComponentProps } from 'react'
 
 import { cn } from '@/lib/utils'
 
 import { MagnifyingGlassIcon } from './icons'
 
-type SearchInputProps = Omit<ComponentPropsWithoutRef<'input'>, 'type'> & {
+type SearchInputProps = Omit<ComponentProps<'input'>, 'type'> & {
   /** Accessible name; the placeholder is not a label. */
   'aria-label': string
   wrapperClassName?: string
