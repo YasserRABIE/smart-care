@@ -4,8 +4,9 @@ import { SectionHeading } from '@/components/layout/SectionHeading'
 import { Card } from '@/components/ui/Card'
 import { EnvelopeSimpleIcon, MapPinIcon, PhoneIcon, type Icon } from '@/components/ui/icons'
 import { IconCircle } from '@/components/ui/IconCircle'
-import { mailtoHref, telHref } from '@/lib/contact-links'
+import { mapQuery, mapsSearchHref, telHref } from '@/lib/contact-links'
 import type { ContactPage, SiteSetting } from '@/payload-types'
+import { messages } from '@/messages/en'
 
 type ContactChannelsProps = {
   channels: ContactPage['channels']
@@ -27,14 +28,20 @@ export function ContactChannels({ channels, settings }: ContactChannelsProps) {
           <p className="text-sm text-fg-tertiary">{settings.workingHours}</p>
         </Channel>
         <Channel icon={EnvelopeSimpleIcon} title={channels.emailTitle}>
-          <a href={mailtoHref(settings.email)} className={linkClass}>
-            {settings.email}
-          </a>
+          <p className="text-sm text-fg-secondary">{settings.email}</p>
           {channels.emailNote && <p className="text-sm text-fg-tertiary">{channels.emailNote}</p>}
         </Channel>
         <Channel icon={MapPinIcon} title={channels.addressTitle}>
           <address className="flex flex-col not-italic">
-            <span className="text-sm text-fg-secondary">{settings.address.street}</span>
+            <a
+              href={mapsSearchHref(mapQuery(settings))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkClass}
+            >
+              {settings.address.street}
+              <span className="sr-only"> {messages.common.opensInNewTab}</span>
+            </a>
             <span className="text-sm text-fg-tertiary">{settings.address.country}</span>
           </address>
         </Channel>

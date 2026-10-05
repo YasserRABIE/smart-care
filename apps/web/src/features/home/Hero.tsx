@@ -10,7 +10,7 @@ export function Hero({ hero }: { hero: HomePage['hero'] }) {
   const image = toImage(hero.image)
 
   return (
-    <section className="relative isolate flex min-h-140 flex-col justify-center overflow-hidden rounded-xl px-6 py-16 md:h-160 md:px-8 lg:h-192">
+    <section className="relative isolate flex min-h-[calc(100vh-1rem)] flex-col justify-center overflow-hidden rounded-xl px-6 py-16 md:h-160 md:px-8 lg:h-192">
       {image && (
         <Image
           src={image.src}
@@ -31,7 +31,7 @@ export function Hero({ hero }: { hero: HomePage['hero'] }) {
           <h1 className="max-w-182 font-display text-display-md text-balance text-white md:text-display-lg lg:text-display-xl">
             {hero.title}
           </h1>
-          <p className="max-w-112 text-md text-fg-subtle md:text-lg">{hero.subtitle}</p>
+          <p className="max-w-md text-md text-fg-subtle md:text-lg">{hero.subtitle}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <Button href="/products" variant="pill" size="lg" trailingIcon={ArrowRightIcon}>

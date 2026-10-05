@@ -9,6 +9,7 @@ import type { ProductLine } from '@/payload-types'
 type ProductLineCardProps = {
   line: Pick<ProductLine, 'title' | 'slug' | 'ctaLabel' | 'coverImage'>
   headingLevel?: 'h2' | 'h3'
+  priority?: boolean
   className?: string
 }
 
@@ -16,6 +17,7 @@ type ProductLineCardProps = {
 export function ProductLineCard({
   line,
   headingLevel: Heading = 'h3',
+  priority,
   className,
 }: ProductLineCardProps) {
   const image = toImage(line.coverImage)
@@ -28,6 +30,7 @@ export function ProductLineCard({
             src={image.src}
             alt={image.alt}
             fill
+            priority={priority}
             sizes="(min-width: 1024px) 400px, (min-width: 768px) 33vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
           />

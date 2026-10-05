@@ -12,7 +12,6 @@ export type SeedMedia = { file: string; alt: string }
 export const media = {
   homeHero: { file: 'home-hero.jpg', alt: 'Surgical team operating under theatre lights' },
   contactHero: { file: 'contact-hero.jpg', alt: 'Modern operating room' },
-  map: { file: 'map.jpg', alt: 'Map of Smart Care Medical locations in Cairo' },
   lineSurgical: { file: 'line-surgical.jpg', alt: 'Stainless steel surgical forceps and scissors' },
   lineFurniture: { file: 'line-furniture.jpg', alt: 'Electric hospital bed with side rails' },
   lineAi: { file: 'line-ai.jpg', alt: 'Monitor showing AI analysis of brain MRI scans' },
@@ -293,7 +292,8 @@ export const siteSettings = {
   whatsappNumber: '20123456789',
   workingHours: 'Sun–Thu 8:00 AM – 5:00 PM',
   address: { street: 'Cairo Medical Hub, Sector 4', city: 'Cairo', country: 'Egypt' },
-  mapUrl: 'https://maps.google.com/?q=Cairo,Egypt',
+  // Replace with the real office address or coordinates (e.g. '30.0444,31.2357').
+  mapLocation: '',
   seo: {
     siteName: 'Smart Care Medical',
     title: 'Smart Care Medical | Surgical Instruments & MedTech Supplier in MENA',

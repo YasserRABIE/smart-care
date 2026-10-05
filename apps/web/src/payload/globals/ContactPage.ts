@@ -74,19 +74,6 @@ export const ContactPage: GlobalConfig = {
           ],
         },
         {
-          name: 'map',
-          label: 'Map',
-          fields: [
-            {
-              name: 'image',
-              type: 'upload',
-              relationTo: 'media',
-              required: true,
-              admin: { description: 'Links to the Google Maps URL in Site settings.' },
-            },
-          ],
-        },
-        {
           name: 'sections',
           label: 'Section headings',
           fields: [

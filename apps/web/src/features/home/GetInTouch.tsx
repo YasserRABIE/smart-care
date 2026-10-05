@@ -9,7 +9,7 @@ import {
   type Icon,
 } from '@/components/ui/icons'
 import { InquiryForm } from '@/features/contact/InquiryForm'
-import { mailtoHref, telHref, whatsappHref } from '@/lib/contact-links'
+import { mapQuery, mapsSearchHref, telHref, whatsappHref } from '@/lib/contact-links'
 import { env } from '@/lib/env'
 import type { HomePage, SiteSetting } from '@/payload-types'
 import { messages } from '@/messages/en'
@@ -33,13 +33,17 @@ export function GetInTouch({ sections, settings }: GetInTouchProps) {
         </div>
         <ul className="flex flex-col gap-4 text-md text-fg-secondary">
           <ContactRow icon={MapPinIcon}>
-            {settings.address.city}, {settings.address.country}
-          </ContactRow>
-          <ContactRow icon={EnvelopeSimpleIcon}>
-            <a href={mailtoHref(settings.email)} className={linkClass}>
-              {settings.email}
+            <a
+              href={mapsSearchHref(mapQuery(settings))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkClass}
+            >
+              {settings.address.city}, {settings.address.country}
+              <span className="sr-only"> {messages.common.opensInNewTab}</span>
             </a>
           </ContactRow>
+          <ContactRow icon={EnvelopeSimpleIcon}>{settings.email}</ContactRow>
           <ContactRow icon={PhoneIcon}>
             <a href={telHref(settings.phone)} className={linkClass}>
               {settings.phone}

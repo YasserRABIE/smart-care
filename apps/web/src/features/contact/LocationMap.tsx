@@ -1,46 +1,35 @@
-import Image from 'next/image'
-
-import { toImage } from '@/lib/media'
-import type { Media } from '@/payload-types'
+import { ArrowUpRightIcon } from '@/components/ui/icons'
+import { mapsEmbedSrc, mapsSearchHref } from '@/lib/contact-links'
 import { messages } from '@/messages/en'
 
 type LocationMapProps = {
-  image: number | Media
-  mapUrl?: string | null
+  /** Address, place name, or "lat,lng". */
+  query: string
+  title: string
 }
 
-/** Static map image linking to Google Maps (no embedded third-party map). */
-export function LocationMap({ image, mapUrl }: LocationMapProps) {
-  const map = toImage(image)
-  if (!map) return null
-
-  const picture = (
-    <>
-      <Image src={map.src} alt={map.alt} fill sizes="100vw" className="object-cover" />
-      <span
-        aria-hidden
-        className="absolute inset-0 bg-brand-900/10 transition-colors group-hover:bg-brand-900/0"
-      />
-    </>
-  )
-
+/** Embedded Google Map (keyless embed, loaded lazily) with a link to open it in Google Maps. */
+export function LocationMap({ query, title }: LocationMapProps) {
   return (
-    <section className="relative h-72 md:h-100">
-      {mapUrl ? (
-        <a
-          href={mapUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group absolute inset-0 block focus-ring"
-        >
-          {picture}
-          <span className="sr-only">
-            {messages.contact.openMap} {messages.common.opensInNewTab}
-          </span>
-        </a>
-      ) : (
-        picture
-      )}
+    <section className="relative h-80 bg-surface-muted md:h-100">
+      <iframe
+        src={mapsEmbedSrc(query)}
+        title={title}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        allowFullScreen
+        className="size-full border-0"
+      />
+      <a
+        href={mapsSearchHref(query)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute end-4 bottom-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-600 shadow-md focus-ring hover:bg-surface-muted"
+      >
+        {messages.contact.openMap}
+        <span className="sr-only"> {messages.common.opensInNewTab}</span>
+        <ArrowUpRightIcon aria-hidden size={16} className="rtl:-scale-x-100" />
+      </a>
     </section>
   )
 }

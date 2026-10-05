@@ -13,7 +13,16 @@ import { messages } from '@/messages/en'
 export async function generateMetadata(): Promise<Metadata> {
   await connection()
   const home = await getHomePage()
-  return { title: home.sections.productLinesTitle, description: home.sections.productsIntro }
+  return {
+    title: home.sections.productLinesTitle,
+    description: home.sections.productsIntro,
+    alternates: { canonical: '/products' },
+    openGraph: {
+      title: home.sections.productLinesTitle,
+      description: home.sections.productsIntro,
+      url: '/products',
+    },
+  }
 }
 
 export default function ProductsPage() {
@@ -40,7 +49,7 @@ async function ProductsContent() {
         description={home.sections.productsIntro}
       />
       <Container size="wide" className="pt-10 pb-20 lg:pb-40">
-        <ProductLinesGrid lines={lines} />
+        <ProductLinesGrid lines={lines} headingLevel="h2" priority />
       </Container>
     </>
   )

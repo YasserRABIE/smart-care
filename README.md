@@ -32,6 +32,8 @@ To load the design's content and images, set `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PA
 | `pnpm --filter @smart-care/web migrate:create <name>` | Create a migration after schema changes (commit it) |
 | `pnpm --filter @smart-care/web migrate`               | Apply pending migrations (production deploys)       |
 
+The map on the contact page and the address links use **Site settings → Map location** (an address, place name, or `lat,lng`), falling back to the postal address.
+
 Schema changes: in development Payload pushes the schema automatically. Before merging a schema change, run `migrate:create` and commit the file in `apps/web/src/migrations/`; production only ever runs migrations.
 
 ## Layout

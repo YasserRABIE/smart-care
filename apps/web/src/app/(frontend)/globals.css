@@ -101,7 +101,7 @@
 
 @layer base {
   html {
-    scroll-padding-top: 6rem;
+    scroll-padding-top: 1.5rem;
   }
 
   /* Lock page scroll while a modal <dialog> (mobile menu) is open. */

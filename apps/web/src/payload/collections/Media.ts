@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { cacheTags } from '@/lib/data/tags'
 
 import { anyone, authenticated } from '../access'
+import { preventDeletingUsedMedia } from '../hooks/preventDeletingUsedMedia'
 import { revalidateCollection } from '../hooks/revalidate'
 
 export const Media: CollectionConfig = {
@@ -17,7 +18,10 @@ export const Media: CollectionConfig = {
     update: authenticated,
     delete: authenticated,
   },
-  hooks: revalidateCollection(cacheTags.media),
+  hooks: {
+    beforeDelete: [preventDeletingUsedMedia],
+    ...revalidateCollection(cacheTags.media),
+  },
   fields: [
     {
       name: 'alt',

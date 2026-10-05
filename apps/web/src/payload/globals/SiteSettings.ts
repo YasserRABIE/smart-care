@@ -63,13 +63,13 @@ export const SiteSettings: GlobalConfig = {
               ],
             },
             {
-              name: 'mapUrl',
-              label: 'Google Maps link',
+              name: 'mapLocation',
+              label: 'Map location',
               type: 'text',
-              validate: (value: string | null | undefined) =>
-                !value ||
-                /^https:\/\/\S+$/.test(value) ||
-                'Enter a full URL starting with https://',
+              admin: {
+                description:
+                  'What the map and "directions" links point to: an address, a place name, or coordinates like "30.0444,31.2357". Leave empty to use the address above.',
+              },
             },
           ],
         },

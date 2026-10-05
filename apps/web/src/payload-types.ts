@@ -755,12 +755,6 @@ export interface ContactPage {
      */
     emailNote?: string | null
   }
-  map: {
-    /**
-     * Links to the Google Maps URL in Site settings.
-     */
-    image: number | Media
-  }
   sections: {
     faqEyebrow: string
     faqTitle: string
@@ -793,7 +787,10 @@ export interface SiteSetting {
     city: string
     country: string
   }
-  mapUrl?: string | null
+  /**
+   * What the map and "directions" links point to: an address, a place name, or coordinates like "30.0444,31.2357". Leave empty to use the address above.
+   */
+  mapLocation?: string | null
   seo: {
     siteName: string
     /**
@@ -887,11 +884,6 @@ export interface ContactPageSelect<T extends boolean = true> {
         addressTitle?: T
         emailNote?: T
       }
-  map?:
-    | T
-    | {
-        image?: T
-      }
   sections?:
     | T
     | {
@@ -919,7 +911,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         city?: T
         country?: T
       }
-  mapUrl?: T
+  mapLocation?: T
   seo?:
     | T
     | {

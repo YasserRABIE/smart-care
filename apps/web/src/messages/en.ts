@@ -37,7 +37,8 @@ export const messages = {
     sendAnother: 'Send another message',
   },
   contact: {
-    openMap: 'Open our location in Google Maps',
+    openMap: 'Open in Google Maps',
+    mapTitle: 'Map showing the Smart Care Medical office',
   },
   notFound: {
     title: 'Page not found',

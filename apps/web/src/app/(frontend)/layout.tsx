@@ -22,6 +22,12 @@ export const metadata: Metadata = {
   },
   description:
     'Surgical instruments, medical furniture, and AI diagnostics for hospitals across MENA.',
+  openGraph: {
+    type: 'website',
+    siteName: 'Smart Care Medical',
+    locale: 'en_US',
+  },
+  twitter: { card: 'summary_large_image' },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

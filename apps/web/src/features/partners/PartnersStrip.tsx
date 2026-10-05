@@ -86,7 +86,7 @@ export function PartnersStrip({
         <h2 className="text-center text-sm font-medium text-fg-secondary">{title}</h2>
       )}
       <Card
-        variant="muted"
+        variant="plain"
         className="group/marquee mask-x-from-90% mask-x-to-100% py-10 motion-reduce:mask-none md:py-16"
       >
         <div

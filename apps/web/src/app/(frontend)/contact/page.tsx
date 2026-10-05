@@ -13,16 +13,25 @@ import { FaqList } from '@/features/contact/FaqList'
 import { InquiryForm } from '@/features/contact/InquiryForm'
 import { LocationMap } from '@/features/contact/LocationMap'
 import { PartnersStrip } from '@/features/partners/PartnersStrip'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { productSubject } from '@/features/contact/subject'
 import { getProductBySlug } from '@/lib/data/catalog'
 import { getContactPage, getFaqs, getPartners, getSiteSettings } from '@/lib/data/content'
+import { mapQuery } from '@/lib/contact-links'
 import { env } from '@/lib/env'
+import { faqPageJsonLd } from '@/lib/seo/structured-data'
+import { messages } from '@/messages/en'
 import { toImage } from '@/lib/media'
 
 export async function generateMetadata(): Promise<Metadata> {
   await connection()
   const page = await getContactPage()
-  return { title: 'Contact', description: page.intro.body }
+  return {
+    title: 'Contact',
+    description: page.intro.body,
+    alternates: { canonical: '/contact' },
+    openGraph: { title: page.hero.title, description: page.intro.body, url: '/contact' },
+  }
 }
 
 export default function ContactPage({ searchParams }: PageProps<'/contact'>) {
@@ -51,6 +60,7 @@ async function ContactContent({ searchParams }: Pick<PageProps<'/contact'>, 'sea
 
   return (
     <>
+      {faqs.length > 0 && <JsonLd data={faqPageJsonLd(faqs)} />}
       <PageBanner
         variant="image"
         title={page.hero.title}
@@ -83,7 +93,7 @@ async function ContactContent({ searchParams }: Pick<PageProps<'/contact'>, 'sea
         </Container>
       </Section>
 
-      <LocationMap image={page.map.image} mapUrl={settings.mapUrl} />
+      <LocationMap query={mapQuery(settings)} title={messages.contact.mapTitle} />
 
       <Section>
         <Container className="flex flex-col gap-12">

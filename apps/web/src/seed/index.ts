@@ -214,7 +214,6 @@ async function seed() {
     data: {
       ...data.contactPage,
       hero: { ...data.contactPage.hero, image: mediaIds.contactHero },
-      map: { image: mediaIds.map },
     },
     context,
   })

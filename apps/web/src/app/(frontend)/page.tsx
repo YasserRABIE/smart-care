@@ -11,14 +11,26 @@ import { Hero } from '@/features/home/Hero'
 import { ProductLinesGrid } from '@/features/home/ProductLinesGrid'
 import { PartnersStrip } from '@/features/partners/PartnersStrip'
 import { getProductLines } from '@/lib/data/catalog'
+import { JsonLd } from '@/components/seo/JsonLd'
 import { getHomePage, getPartners, getSiteSettings } from '@/lib/data/content'
+import { clientEnv } from '@/lib/env'
+import { toImage } from '@/lib/media'
+import { organizationJsonLd } from '@/lib/seo/structured-data'
 
 export async function generateMetadata(): Promise<Metadata> {
   await connection()
   const settings = await getSiteSettings()
+  const shareImage = toImage(settings.seo.image)
   return {
     title: { absolute: settings.seo.title },
     description: settings.seo.description,
+    alternates: { canonical: '/' },
+    openGraph: {
+      title: settings.seo.title,
+      description: settings.seo.description,
+      url: '/',
+      ...(shareImage && { images: [{ url: shareImage.src, alt: shareImage.alt }] }),
+    },
   }
 }
 
@@ -41,9 +53,10 @@ async function HomeContent() {
 
   return (
     <>
-      <Container size="wide">
+      <JsonLd data={organizationJsonLd(settings, clientEnv.NEXT_PUBLIC_SITE_URL)} />
+      <div className="px-6">
         <Hero hero={home.hero} />
-      </Container>
+      </div>
 
       <Section spacing="lg" className="pt-16 md:pt-20 lg:pt-40">
         <Container size="wide">
