@@ -15,6 +15,10 @@ type Args = {
   }>
 }
 
+// Added by hand: the admin is per-user and reads params/cookies on every request, so opt it out of
+// Cache Components' instant-navigation validation. Re-apply if a Payload upgrade regenerates this file.
+export const instant = false
+
 export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
   generatePageMetadata({ config, params, searchParams })
 
