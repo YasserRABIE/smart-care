@@ -54,7 +54,7 @@ async function HomeContent() {
   return (
     <>
       <JsonLd data={organizationJsonLd(settings, clientEnv.NEXT_PUBLIC_SITE_URL)} />
-      <div className="px-6">
+      <div className="px-4">
         <Hero hero={home.hero} />
       </div>
 
