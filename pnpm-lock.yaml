@@ -35,13 +35,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@marsidev/react-turnstile':
-        specifier: ^1.6.1
-        version: 1.6.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@payloadcms/db-postgres':
-        specifier: 3.90.2
-        version: 3.90.2(payload@3.90.2(graphql@16.14.2)(typescript@5.7.3))
-      '@payloadcms/email-resend':
         specifier: 3.90.2
         version: 3.90.2(payload@3.90.2(graphql@16.14.2)(typescript@5.7.3))
       '@payloadcms/next':
@@ -1349,12 +1343,6 @@ packages:
       typescript:
         optional: true
 
-  '@marsidev/react-turnstile@1.6.1':
-    resolution: {integrity: sha512-ojI9NLYv821IRKi7KraTkxTto6KC/m58hNNyKxvYxm/cQBu5MI5eMkaiJs2JSQBFiXE3LPQI3seJVjv/2lgALA==}
-    peerDependencies:
-      react: ^17.0.2 || ^18.0.0 || ^19.0
-      react-dom: ^17.0.2 || ^18.0.0 || ^19.0
-
   '@monaco-editor/loader@1.7.0':
     resolution: {integrity: sha512-gIwR1HrJrrx+vfyOhYmCZ0/JcWqG5kbfG7+d3f/C1LXk2EvzAbHSg3MQ5lO2sMlo9izoAZ04shohfKLVT6crVA==}
 
@@ -1458,12 +1446,6 @@ packages:
 
   '@payloadcms/drizzle@3.90.2':
     resolution: {integrity: sha512-C5r0gimzaq6ih21jh3VPQNNRxFYCi6JhTgkcbf2c/xGF7MEEzNzDn3DgfFFe4zeDE4iuC9glYrXFs85AKghq8w==}
-    peerDependencies:
-      payload: 3.90.2
-
-  '@payloadcms/email-resend@3.90.2':
-    resolution: {integrity: sha512-CckTlL2qeXuaIFA1LFiIXzntlEoVqsz1tEboO/3EsSgNw0kmVUts4fdhvUF2fTvg/lEpVdESk8KyWCBLHYMkxw==}
-    engines: {node: ^18.20.2 || >=20.9.0}
     peerDependencies:
       payload: 3.90.2
 
@@ -5739,11 +5721,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.3
 
-  '@marsidev/react-turnstile@1.6.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
-    dependencies:
-      react: 19.2.6
-      react-dom: 19.2.6(react@19.2.6)
-
   '@monaco-editor/loader@1.7.0':
     dependencies:
       state-local: 1.0.7
@@ -5896,10 +5873,6 @@ snapshots:
       - prisma
       - sql.js
       - sqlite3
-
-  '@payloadcms/email-resend@3.90.2(payload@3.90.2(graphql@16.14.2)(typescript@5.7.3))':
-    dependencies:
-      payload: 3.90.2(graphql@16.14.2)(typescript@5.7.3)
 
   '@payloadcms/graphql@3.90.2(graphql@16.14.2)(payload@3.90.2(graphql@16.14.2)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:

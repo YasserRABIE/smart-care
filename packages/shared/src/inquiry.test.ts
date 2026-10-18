@@ -15,47 +15,28 @@ describe('inquirySchema', () => {
     expect(result.name).toBe('Ahmed Ali')
   })
 
-  it('rejects an invalid email', () => {
+  it('treats email as optional', () => {
+    expect(inquirySchema.parse({ ...valid, email: '' }).email).toBeUndefined()
+    expect(inquirySchema.parse({ ...valid, email: undefined }).email).toBeUndefined()
+  })
+
+  it('rejects an invalid email when one is given', () => {
     expect(inquirySchema.safeParse({ ...valid, email: 'not-an-email' }).success).toBe(false)
   })
 
   it('rejects a too-short message', () => {
     expect(inquirySchema.safeParse({ ...valid, message: 'hi' }).success).toBe(false)
   })
-
-  it('drops malformed product slugs and source pages instead of failing', () => {
-    const result = inquirySchema.parse({
-      ...valid,
-      product: '1 OR 1=1',
-      sourcePage: 'https://evil.test',
-    })
-    expect(result.product).toBeUndefined()
-    expect(result.sourcePage).toBeUndefined()
-  })
-
-  it('keeps a valid product slug and source page', () => {
-    const result = inquirySchema.parse({
-      ...valid,
-      product: 'tungsten-needle-holder',
-      sourcePage: '/contact',
-    })
-    expect(result.product).toBe('tungsten-needle-holder')
-    expect(result.sourcePage).toBe('/contact')
-  })
-
-  it('treats an empty honeypot as unset', () => {
-    expect(inquirySchema.parse({ ...valid, website: '' }).website).toBeUndefined()
-  })
 })
 
 describe('inquiryFieldErrors', () => {
-  it('returns the first message for each visible field only', () => {
-    const result = inquirySchema.safeParse({ name: 'A', email: 'x', subject: '', message: '' })
+  it('maps the first issue per visible field', () => {
+    const result = inquirySchema.safeParse({ ...valid, name: '', message: 'hi' })
     expect(result.success).toBe(false)
-    if (!result.success) {
-      const errors = inquiryFieldErrors(result.error)
-      expect(Object.keys(errors).sort()).toEqual(['email', 'message', 'name', 'subject'])
-      expect(errors.name).toBe('Please enter your full name')
-    }
+    if (result.success) return
+    expect(inquiryFieldErrors(result.error)).toEqual({
+      name: 'Please enter your full name',
+      message: 'Please write a little more (at least 10 characters)',
+    })
   })
 })

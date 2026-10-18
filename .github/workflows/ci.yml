@@ -16,7 +16,6 @@ jobs:
     env:
       # Dummy values: the build validates env but does not connect to the database yet.
       # Phase 4 pages query Payload at build time; add a postgres service then.
-      # Email and Turnstile keys are only enforced at runtime (see apps/web/src/lib/env.ts).
       DATABASE_URI: postgres://ci:ci@localhost:5432/ci
       PAYLOAD_SECRET: ci-only-secret-not-used-anywhere-else-0000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000

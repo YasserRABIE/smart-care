@@ -1,16 +1,14 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
-import { env, parseEmailFrom } from './lib/env'
+import { env } from './lib/env'
 import { migrations } from './migrations'
 import { Categories } from './payload/collections/Categories'
 import { Faqs } from './payload/collections/Faqs'
-import { Inquiries } from './payload/collections/Inquiries'
 import { Media } from './payload/collections/Media'
 import { Partners } from './payload/collections/Partners'
 import { ProductLines } from './payload/collections/ProductLines'
@@ -21,19 +19,6 @@ import { HomePage } from './payload/globals/HomePage'
 import { SiteSettings } from './payload/globals/SiteSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// Without Resend credentials (local dev) Payload prints emails to the console instead.
-const email =
-  env.RESEND_API_KEY && env.EMAIL_FROM
-    ? (() => {
-        const from = parseEmailFrom(env.EMAIL_FROM)
-        return resendAdapter({
-          apiKey: env.RESEND_API_KEY,
-          defaultFromAddress: from.address,
-          defaultFromName: from.name,
-        })
-      })()
-    : undefined
 
 export default buildConfig({
   serverURL: env.NEXT_PUBLIC_SITE_URL,
@@ -46,7 +31,7 @@ export default buildConfig({
       titleSuffix: '— Smart Care Admin',
     },
   },
-  collections: [ProductLines, Categories, Products, Partners, Faqs, Media, Inquiries, Users],
+  collections: [ProductLines, Categories, Products, Partners, Faqs, Media, Users],
   globals: [HomePage, ContactPage, SiteSettings],
   editor: lexicalEditor(),
   secret: env.PAYLOAD_SECRET,
@@ -60,7 +45,6 @@ export default buildConfig({
     // The standalone image has no Payload CLI, so pending migrations run when the server starts.
     prodMigrations: migrations,
   }),
-  email,
   sharp,
   plugins: [],
 })

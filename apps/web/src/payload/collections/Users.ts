@@ -38,7 +38,7 @@ export const Users: CollectionConfig = {
         update: isAdminField,
       },
       admin: {
-        description: 'Editors manage site content. Admins also manage users and inquiries.',
+        description: 'Editors manage site content. Admins also manage users.',
       },
     },
   ],

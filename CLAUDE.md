@@ -1,7 +1,7 @@
 # Smart Care — Project Context
 
 Marketing site + product catalog for **Smart Care Medical**, a Cairo-based supplier of surgical instruments, medical furniture, and AI diagnostics software to hospitals across MENA.
-No e-commerce, no prices, no inventory. The only conversion is an **inquiry** (contact form, "Send Inquiry" on products, WhatsApp, phone).
+No e-commerce, no prices, no inventory. The only conversion is an **inquiry** (contact form that hands off to WhatsApp, "Send Inquiry" on products, phone).
 
 The client must be able to manage product lines, categories, products, partners, FAQs, and site content themselves through an admin panel.
 
@@ -22,8 +22,7 @@ The client must be able to manage product lines, categories, products, partners,
 | Database   | Postgres 16 (Docker locally, Docker on the VPS in production)                                             |
 | Styling    | Tailwind CSS v4, design tokens in `@theme`, font via `next/font`                                          |
 | Validation | zod, schemas shared from `packages/shared`                                                                |
-| Email      | Resend, sent from a Payload `afterChange` hook on `inquiries`                                             |
-| Spam       | Honeypot + Cloudflare Turnstile + per-IP rate limit                                                       |
+| Inquiries  | Client-side form → WhatsApp click-to-chat (`wa.me`) with a prefilled message; no email, nothing stored    |
 | Motion     | Motion (framer-motion), respects `prefers-reduced-motion`                                                 |
 | Tests      | Vitest (unit), Playwright (e2e for form + catalog)                                                        |
 | Quality    | TypeScript strict, ESLint, Prettier, Husky + lint-staged                                                  |
@@ -68,8 +67,8 @@ smart-care/
 - **Data access layer:** pages never call Payload directly; they call functions in `lib/data`. Those functions own querying, caching, and the "published only" filter.
 - **Caching:** data functions are cached with tags (`products`, `product-lines`, `site-settings`, ...). Payload `afterChange`/`afterDelete` hooks call `revalidateTag`.
 - **Catalog state lives in the URL:** `/products/[line]?category=&q=&page=`. 6 products per page.
-- **"Send Inquiry" on a product** links to `/contact?product=<slug>`; the contact page prefills the subject and attaches the product to the inquiry.
-- **Thin Server Action:** validate (shared zod schema) → spam check → `payload.create('inquiries')`. Email is sent by the `inquiries` afterChange hook to the product line's `notifyEmail` (fallback: `CONTACT_FALLBACK_EMAIL`), with `replyTo` = customer email.
+- **"Send Inquiry" on a product** links to `/contact?product=<slug>`; the contact page prefills the subject and adds the product (and its line) to the WhatsApp message.
+- **WhatsApp inquiries:** the form validates with the shared zod schema in the browser, builds the message (`features/contact/whatsapp-message.ts`), and opens `wa.me/<Site Settings WhatsApp number>?text=…`. The visitor sends it from WhatsApp. No server action, no email, no `inquiries` collection.
 - **UI variants with `cva`:** one `Button` with variants `primary` (filled teal), `pill` (white rounded), `link` (text + arrow icon); renders as `Link` when given `href`.
 - Design tokens come from Figma variables. No hardcoded hex values in components.
 - Feature-specific code goes in `features/*`; `components/ui` must stay brand-agnostic.
@@ -80,12 +79,11 @@ Collections:
 
 - `users` — email, name, role (`admin` | `editor`). Admin access only.
 - `media` — upload with required `alt` and generated sizes.
-- `product-lines` — title, slug, description, coverImage, ctaLabel, notifyEmail, order.
+- `product-lines` — title, slug, description, coverImage, ctaLabel, order.
 - `categories` — title, slug, productLine (relationship).
 - `products` — title, slug, description, image, category, productLine, status (draft/published), order.
 - `partners` — name, logo, url, order.
 - `faqs` — question, answer, order.
-- `inquiries` — name, email, subject, message, product, productLine, sourcePage, status (`new` | `contacted` | `closed`). Created only via the server action; readable by admins only.
 
 Globals:
 
@@ -112,7 +110,7 @@ Use the Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`) 
 3. Arabic/RTL needed? (before Phase 3).
 4. Missing states: hover, focus, form success/error, empty search, loading.
 5. Placeholder content: duplicate "48" counts, "B2C Customer" / "Employee" should be plural.
-6. Inquiry routing: one inbox or per product line?
+6. ~~Inquiry routing~~ — resolved: one WhatsApp number from Site Settings.
 
 ## Phases
 
@@ -122,7 +120,7 @@ Use the Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`) 
 4. **Pages** — home, catalog (filters/search/pagination), contact.
 5. **Inquiries** — form, server action, spam protection, email hook, product prefill.
 6. **Polish** — responsive, motion, SEO (metadata, sitemap, JSON-LD Organization + FAQPage), accessibility, performance.
-7. **Launch** — VPS, Docker Compose, Caddy, domain, Resend DNS (SPF/DKIM), nightly `pg_dump` + media backups off-server, admin handover.
+7. **Launch** — VPS, Docker Compose, Caddy, domain, nightly `pg_dump` + media backups off-server, admin handover.
 
 ### Phase 1 detail (Setup)
 

@@ -1,43 +1,22 @@
 import { z } from 'zod'
 
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .optional()
-    .transform((value) => value || undefined)
-
 /**
- * The inquiry form payload. The client validates with it on submit for instant feedback; the
- * server action validates again and is the source of truth.
+ * The inquiry form. Validated in the browser before the visitor is handed off to WhatsApp with
+ * the message prefilled; nothing is sent to our server.
  */
 export const inquirySchema = z.object({
   name: z.string().trim().min(2, 'Please enter your full name').max(120, 'Name is too long'),
-  email: z.email('Please enter a valid email address').max(254),
+  /** Optional: WhatsApp already shows the sender's phone number. */
+  email: z
+    .union([z.literal(''), z.email('Please enter a valid email address').max(254)])
+    .optional()
+    .transform((value) => value || undefined),
   subject: z.string().trim().min(3, 'Please add a subject').max(200, 'Subject is too long'),
   message: z
     .string()
     .trim()
     .min(10, 'Please write a little more (at least 10 characters)')
-    .max(5000, 'Message is too long (5000 characters max)'),
-  /** Product slug from `/contact?product=`. The server resolves it; ids are never trusted. */
-  product: z
-    .string()
-    .regex(/^[a-z0-9-]{1,200}$/)
-    .optional()
-    .catch(undefined),
-  /** Path of the page the form was sent from. */
-  sourcePage: z
-    .string()
-    .regex(/^\/[\w\-/]*$/)
-    .max(200)
-    .optional()
-    .catch(undefined),
-  /** Honeypot: hidden from people, filled by bots. Checked by the server, never shown. */
-  website: optionalText(500),
-  /** Cloudflare Turnstile response token. */
-  turnstileToken: optionalText(4096),
+    .max(2000, 'Message is too long (2000 characters max)'),
 })
 
 export type InquiryInput = z.infer<typeof inquirySchema>

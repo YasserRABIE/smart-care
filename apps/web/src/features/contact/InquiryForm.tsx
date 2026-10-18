@@ -1,38 +1,43 @@
 'use client'
 
-import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
-import { inquiryFieldErrors, inquirySchema, type InquiryFieldErrors } from '@smart-care/shared'
+import {
+  inquiryFieldErrors,
+  inquirySchema,
+  type InquiryFieldErrors,
+  type InquiryInput,
+} from '@smart-care/shared'
 import Link from 'next/link'
-import { useActionState, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Field } from '@/components/ui/Field'
-import { ArrowUpRightIcon, CheckIcon, XIcon } from '@/components/ui/icons'
+import { CheckIcon, WhatsappLogoIcon, XIcon } from '@/components/ui/icons'
 import { Input, Textarea } from '@/components/ui/Input'
 import { cn } from '@/lib/utils'
 import { messages } from '@/messages/en'
 
-import { submitInquiry } from './actions'
-import type { InquiryFormState } from './handle-inquiry'
+import { inquiryWhatsappHref, type InquiryProduct } from './whatsapp-message'
 
 export type InquiryFormProps = {
   /** Prefix for field ids, so two forms can never clash on one page. */
   id?: string
-  /** Path of the page hosting the form, stored with the inquiry. */
+  /** WhatsApp number from Site Settings: digits only, with the country code. */
+  whatsappNumber: string
+  /** Path of the page hosting the form; "remove product" links back to it. */
   sourcePage: string
-  /** Product from `/contact?product=`, attached to the inquiry. */
-  product?: { slug: string; title: string } | null
+  /** Product from `/contact?product=`, added to the message. */
+  product?: InquiryProduct | null
   defaultSubject?: string
-  /** Cloudflare Turnstile site key; omitted in local development. */
-  turnstileSiteKey?: string
   className?: string
 }
 
-const initialState: InquiryFormState = { status: 'idle' }
+type View =
+  | { status: 'editing'; values?: InquiryInput }
+  | { status: 'opened'; href: string; values: InquiryInput }
 
 export function InquiryForm({ className, ...props }: InquiryFormProps) {
-  // Bumping the key remounts the form with fresh state ("Send another message").
+  // Bumping the key remounts the form with fresh state ("Start a new message").
   const [formKey, setFormKey] = useState(0)
   return (
     <Card variant="muted" className={cn('rounded-md p-6 md:p-10', className)}>
@@ -43,34 +48,22 @@ export function InquiryForm({ className, ...props }: InquiryFormProps) {
 
 function InquiryFormInner({
   id = 'inquiry',
+  whatsappNumber,
   sourcePage,
   product,
   defaultSubject,
-  turnstileSiteKey,
   onReset,
 }: Omit<InquiryFormProps, 'className'> & { onReset: () => void }) {
   const t = messages.form
-  const [state, formAction, isPending] = useActionState(submitInquiry, initialState)
-  const [clientErrors, setClientErrors] = useState<InquiryFieldErrors | null>(null)
-  const formRef = useRef<HTMLFormElement>(null)
-  const turnstileRef = useRef<TurnstileInstance>(null)
+  const [view, setView] = useState<View>({ status: 'editing' })
+  const [errors, setErrors] = useState<InquiryFieldErrors>({})
   const statusRef = useRef<HTMLHeadingElement>(null)
 
-  const serverErrors = state.status === 'error' ? state.fieldErrors : undefined
-  const errors = clientErrors ?? serverErrors ?? {}
-  const values = state.status === 'error' ? state.values : undefined
-
-  // After a server response: tokens are single-use, so reset Turnstile on errors; move focus
-  // to the first invalid field, or to the success message.
   useEffect(() => {
-    if (state.status === 'error') {
-      turnstileRef.current?.reset()
-      focusFirstError(formRef.current, state.fieldErrors)
-    }
-    if (state.status === 'success') statusRef.current?.focus()
-  }, [state])
+    if (view.status === 'opened') statusRef.current?.focus()
+  }, [view.status])
 
-  if (state.status === 'success') {
+  if (view.status === 'opened') {
     return (
       <div className="flex flex-col items-start gap-4" role="status">
         <span className="inline-flex size-12 items-center justify-center rounded-full bg-brand-50 text-brand-600">
@@ -81,34 +74,56 @@ function InquiryFormInner({
           tabIndex={-1}
           className="font-display text-display-xs text-fg-primary outline-none md:text-display-sm"
         >
-          {t.successTitle}
+          {t.openedTitle}
         </h2>
-        <p className="text-md text-fg-secondary">{t.successBody}</p>
-        <Button variant="outline" size="sm" onClick={onReset} className="mt-2">
-          {t.sendAnother}
-        </Button>
+        <p className="text-md text-fg-secondary">{t.openedBody}</p>
+        <div className="mt-2 flex flex-wrap gap-3">
+          <Button
+            href={view.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="sm"
+            leadingIcon={WhatsappLogoIcon}
+          >
+            {t.openAgain}
+            <span className="sr-only"> {messages.common.opensInNewTab}</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setView({ status: 'editing', values: view.values })}
+          >
+            {t.editMessage}
+          </Button>
+          <Button variant="outline" size="sm" onClick={onReset}>
+            {t.startNew}
+          </Button>
+        </div>
       </div>
     )
   }
 
+  const values = view.values
+
   return (
     <form
-      ref={formRef}
-      action={formAction}
       noValidate
       onSubmit={(event) => {
-        // Instant feedback with the same schema the server uses; the server still re-checks.
-        const result = inquirySchema.safeParse(
-          Object.fromEntries(new FormData(event.currentTarget)),
-        )
-        if (result.success) {
-          setClientErrors(null)
+        event.preventDefault()
+        const form = event.currentTarget
+        const result = inquirySchema.safeParse(Object.fromEntries(new FormData(form)))
+        if (!result.success) {
+          const fieldErrors = inquiryFieldErrors(result.error)
+          setErrors(fieldErrors)
+          focusFirstError(form, fieldErrors)
           return
         }
-        event.preventDefault()
-        const fieldErrors = inquiryFieldErrors(result.error)
-        setClientErrors(fieldErrors)
-        focusFirstError(event.currentTarget, fieldErrors)
+        setErrors({})
+        const href = inquiryWhatsappHref(whatsappNumber, result.data, product)
+        // Opened from the submit gesture, so popup blockers allow it. The confirmation keeps a
+        // link in case it did not open.
+        window.open(href, '_blank', 'noopener,noreferrer')
+        setView({ status: 'opened', href, values: result.data })
       }}
       aria-labelledby={`${id}-title`}
       className="flex flex-col gap-6"
@@ -120,6 +135,7 @@ function InquiryFormInner({
         >
           {t.title}
         </h2>
+        <p className="text-md text-fg-secondary">{t.intro}</p>
         {product && (
           <p className="inline-flex w-fit items-center gap-2 rounded-full bg-brand-50 py-1 ps-3 pe-1 text-sm text-brand-600">
             <span>
@@ -137,12 +153,6 @@ function InquiryFormInner({
         )}
       </div>
 
-      {state.status === 'error' && state.message && (
-        <p role="alert" className="rounded-md bg-error-600/10 px-4 py-3 text-sm text-error-600">
-          {state.message}
-        </p>
-      )}
-
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 md:grid-cols-2">
           <Field id={`${id}-name`} label={t.name} required error={errors.name}>
@@ -156,7 +166,7 @@ function InquiryFormInner({
               />
             )}
           </Field>
-          <Field id={`${id}-email`} label={t.email} required error={errors.email}>
+          <Field id={`${id}-email`} label={t.email} error={errors.email}>
             {(field) => (
               <Input
                 {...field}
@@ -192,38 +202,15 @@ function InquiryFormInner({
         </Field>
       </div>
 
-      <input type="hidden" name="sourcePage" value={sourcePage} />
-      {product && <input type="hidden" name="product" value={product.slug} />}
-
-      {/* Honeypot: off-screen and hidden from assistive tech; bots fill it, people do not. */}
-      <div aria-hidden className="absolute -start-[9999px] h-px w-px overflow-hidden">
-        <label htmlFor={`${id}-website`}>{t.honeypot}</label>
-        <input id={`${id}-website`} type="text" name="website" tabIndex={-1} autoComplete="off" />
-      </div>
-
-      {turnstileSiteKey && (
-        <Turnstile
-          ref={turnstileRef}
-          siteKey={turnstileSiteKey}
-          options={{ size: 'flexible', theme: 'light', appearance: 'interaction-only' }}
-        />
-      )}
-
-      <Button
-        type="submit"
-        fullWidth
-        trailingIcon={ArrowUpRightIcon}
-        disabled={isPending}
-        aria-disabled={isPending}
-      >
-        {isPending ? t.sending : t.submit}
+      <Button type="submit" fullWidth leadingIcon={WhatsappLogoIcon}>
+        {t.submit}
+        <span className="sr-only"> {messages.common.opensInNewTab}</span>
       </Button>
     </form>
   )
 }
 
-function focusFirstError(form: HTMLFormElement | null, errors: InquiryFieldErrors | undefined) {
-  if (!form || !errors) return
+function focusFirstError(form: HTMLFormElement, errors: InquiryFieldErrors) {
   const first = (['name', 'email', 'subject', 'message'] as const).find((field) => errors[field])
   if (first) form.querySelector<HTMLElement>(`[name="${first}"]`)?.focus()
 }

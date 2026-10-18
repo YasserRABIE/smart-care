@@ -2,7 +2,7 @@
  * Seeds the database with the design's content.
  *
  *   pnpm seed           create or update everything (safe to re-run)
- *   pnpm seed --reset   delete catalog and content first (users and inquiries are kept)
+ *   pnpm seed --reset   delete catalog and content first (users are kept)
  *
  * Runs outside Next.js, so cache revalidation is disabled; restart `pnpm dev` afterwards.
  */

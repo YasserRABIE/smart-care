@@ -73,7 +73,6 @@ export interface Config {
     partners: Partner
     faqs: Faq
     media: Media
-    inquiries: Inquiry
     users: User
     'payload-kv': PayloadKv
     'payload-locked-documents': PayloadLockedDocument
@@ -88,7 +87,6 @@ export interface Config {
     partners: PartnersSelect<false> | PartnersSelect<true>
     faqs: FaqsSelect<false> | FaqsSelect<true>
     media: MediaSelect<false> | MediaSelect<true>
-    inquiries: InquiriesSelect<false> | InquiriesSelect<true>
     users: UsersSelect<false> | UsersSelect<true>
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
     'payload-locked-documents':
@@ -159,10 +157,6 @@ export interface ProductLine {
    * Link text on the home page card, e.g. "Browse Instruments".
    */
   ctaLabel: string
-  /**
-   * Inquiries about this line are emailed here. Leave empty to use the default inbox.
-   */
-  notifyEmail?: string | null
   /**
    * Lower numbers show first.
    */
@@ -312,33 +306,13 @@ export interface Faq {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "inquiries".
- */
-export interface Inquiry {
-  id: number
-  status: 'new' | 'contacted' | 'closed'
-  name: string
-  email: string
-  subject: string
-  message: string
-  product?: (number | null) | Product
-  productLine?: (number | null) | ProductLine
-  /**
-   * The page the form was sent from.
-   */
-  sourcePage?: string | null
-  updatedAt: string
-  createdAt: string
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number
   name?: string | null
   /**
-   * Editors manage site content. Admins also manage users and inquiries.
+   * Editors manage site content. Admins also manage users.
    */
   role: 'admin' | 'editor'
   updatedAt: string
@@ -410,10 +384,6 @@ export interface PayloadLockedDocument {
         value: number | Media
       } | null)
     | ({
-        relationTo: 'inquiries'
-        value: number | Inquiry
-      } | null)
-    | ({
         relationTo: 'users'
         value: number | User
       } | null)
@@ -470,7 +440,6 @@ export interface ProductLinesSelect<T extends boolean = true> {
   description?: T
   coverImage?: T
   ctaLabel?: T
-  notifyEmail?: T
   order?: T
   catalog?:
     | T
@@ -591,22 +560,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T
             }
       }
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "inquiries_select".
- */
-export interface InquiriesSelect<T extends boolean = true> {
-  status?: T
-  name?: T
-  email?: T
-  subject?: T
-  message?: T
-  product?: T
-  productLine?: T
-  sourcePage?: T
-  updatedAt?: T
-  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

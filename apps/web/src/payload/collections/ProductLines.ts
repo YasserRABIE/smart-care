@@ -11,7 +11,7 @@ export const ProductLines: CollectionConfig = {
   admin: {
     group: 'Catalog',
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'notifyEmail', 'order'],
+    defaultColumns: ['title', 'slug', 'order'],
   },
   defaultSort: 'order',
   access: {
@@ -37,14 +37,6 @@ export const ProductLines: CollectionConfig = {
       required: true,
       defaultValue: 'Browse products',
       admin: { description: 'Link text on the home page card, e.g. "Browse Instruments".' },
-    },
-    {
-      name: 'notifyEmail',
-      type: 'email',
-      admin: {
-        description:
-          'Inquiries about this line are emailed here. Leave empty to use the default inbox.',
-      },
     },
     {
       name: 'order',

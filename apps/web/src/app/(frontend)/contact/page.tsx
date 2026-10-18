@@ -15,10 +15,10 @@ import { LocationMap } from '@/features/contact/LocationMap'
 import { PartnersStrip } from '@/features/partners/PartnersStrip'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { productSubject } from '@/features/contact/subject'
+import type { InquiryProduct } from '@/features/contact/whatsapp-message'
 import { getProductBySlug } from '@/lib/data/catalog'
 import { getContactPage, getFaqs, getPartners, getSiteSettings } from '@/lib/data/content'
 import { mapQuery } from '@/lib/contact-links'
-import { env } from '@/lib/env'
 import { faqPageJsonLd } from '@/lib/seo/structured-data'
 import { messages } from '@/messages/en'
 import { toImage } from '@/lib/media'
@@ -75,13 +75,13 @@ async function ContactContent({ searchParams }: Pick<PageProps<'/contact'>, 'sea
             <InquiryForm
               id="contact-inquiry"
               sourcePage="/contact"
-              product={product && { slug: product.slug, title: product.title }}
+              whatsappNumber={settings.whatsappNumber}
+              product={product && inquiryProduct(product)}
               defaultSubject={
                 product
                   ? productSubject(page.intro.productSubjectTemplate, product.title)
                   : undefined
               }
-              turnstileSiteKey={env.TURNSTILE_SITE_KEY}
             />
           </div>
         </Container>
@@ -129,4 +129,11 @@ function ContactSkeleton() {
       </Container>
     </div>
   )
+}
+
+function inquiryProduct(
+  product: NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>,
+): InquiryProduct {
+  const line = typeof product.productLine === 'object' ? product.productLine : null
+  return { slug: product.slug, title: product.title, lineTitle: line?.title }
 }

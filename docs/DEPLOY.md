@@ -40,7 +40,6 @@ Have these ready:
 - [ ] Access to the DNS for `smartcareco.com` (registrar or Cloudflare)
 - [ ] The repo pushed to `github.com/YasserRABIE/smart-care` and at least one CI run that built the
       image (the `deploy` job may fail at the SSH step; that is fine for now)
-- [ ] A Resend account and a Cloudflare Turnstile widget (section 11)
 - [ ] An SSH key on your Mac. Check with `ls ~/.ssh/id_ed25519.pub`. If missing:
 
 ```bash
@@ -221,18 +220,13 @@ openssl rand -hex 32
 
 Edit the file with `nano .env` and fill it in:
 
-| Key                      | Value                                                                     |
-| ------------------------ | ------------------------------------------------------------------------- |
-| `GHCR_OWNER`             | `yasserrabie`                                                             |
-| `POSTGRES_PASSWORD`      | first secret                                                              |
-| `DATABASE_URI`           | `postgres://smartcare:<first secret>@postgres:5432/smartcare`             |
-| `PAYLOAD_SECRET`         | second secret. **Never change it later** (it invalidates all logins).     |
-| `NEXT_PUBLIC_SITE_URL`   | `https://smartcareco.com`                                                 |
-| `RESEND_API_KEY`         | from Resend (section 11). Starts with `re_`                               |
-| `EMAIL_FROM`             | `Smart Care Medical <inquiries@smartcareco.com>`                          |
-| `CONTACT_FALLBACK_EMAIL` | the inbox that receives inquiries when a product line has no notify email |
-| `TURNSTILE_SITE_KEY`     | from Cloudflare Turnstile (section 11)                                    |
-| `TURNSTILE_SECRET_KEY`   | from Cloudflare Turnstile (section 11)                                    |
+| Key                    | Value                                                                 |
+| ---------------------- | --------------------------------------------------------------------- |
+| `GHCR_OWNER`           | `yasserrabie`                                                         |
+| `POSTGRES_PASSWORD`    | first secret                                                          |
+| `DATABASE_URI`         | `postgres://smartcare:<first secret>@postgres:5432/smartcare`         |
+| `PAYLOAD_SECRET`       | second secret. **Never change it later** (it invalidates all logins). |
+| `NEXT_PUBLIC_SITE_URL` | `https://smartcareco.com`                                             |
 
 Save with `Ctrl+O`, `Enter`, `Ctrl+X`. The app refuses to start if any of these are missing or
 malformed, and the error in `docker compose logs web` names the bad key.
@@ -296,24 +290,14 @@ Or with the GitHub CLI from the repo folder:
 gh secret set VPS_HOST -b "YOUR_IP" && gh secret set VPS_USER -b "deploy" && gh secret set VPS_SSH_KEY < ~/.ssh/smartcare_deploy && gh variable set SITE_URL -b "https://smartcareco.com"
 ```
 
-## 11. Email (Resend) and spam protection (Turnstile)
+## 11. WhatsApp number
 
-**Resend**
+Inquiries go through WhatsApp: the contact form opens WhatsApp with the visitor's message
+prefilled, addressed to the number in **Admin → Site Settings → WhatsApp number** (digits only,
+with the country code, e.g. `20123456789`). The site sends no email and stores no inquiries, so
+there are no email or spam-protection keys to set up.
 
-1. resend.com → **Domains** → **Add domain** → `smartcareco.com`, region closest to Egypt (eu-west-1).
-2. Add every DNS record Resend shows (MX and TXT on `send`, DKIM TXT on `resend._domainkey`) at your
-   DNS provider. On Cloudflare they must be **DNS only**.
-3. Add a DMARC record if you have none: TXT, name `_dmarc`, value `v=DMARC1; p=none;`.
-4. Click **Verify**, and wait until the domain is **Verified**.
-5. **API Keys** → create a key with **Sending access** for this domain → put it in `RESEND_API_KEY`.
-
-**Cloudflare Turnstile**
-
-1. dash.cloudflare.com → **Turnstile** → **Add widget**, name `smart-care`, hostnames
-   `smartcareco.com` and `www.smartcareco.com`, mode **Managed**.
-2. Copy the **Site key** and **Secret key** into `.env`.
-
-If you change `.env` after the app is running, apply it with `docker compose up -d` (step 13).
+After launch, check that number is the company's real WhatsApp (Business) number.
 
 ## 12. First start: database and content
 
@@ -325,11 +309,30 @@ This moves everything you entered locally (products, pages, users, images) to th
 `web` container must **not** have started yet, because its migrations would create an empty schema
 first.
 
-**Mac**: dump the local database and upload it with the images:
+The local database is usually built by Payload's dev "push" mode, not by the migration files, so it
+cannot be copied as-is: the server would try to run every migration on top of existing tables. The
+commands below build a fresh database from the migrations, load only your **data** into it, and
+dump that.
+
+**Mac** (with `pnpm db:up` running): build the release database:
 
 ```bash
-docker compose -f docker/docker-compose.dev.yml exec -T postgres pg_dump -U smartcare -Fc smartcare > smartcare.dump
+docker exec smart-care-postgres-1 psql -U smartcare -d smartcare -c "DROP DATABASE IF EXISTS smartcare_release" -c "CREATE DATABASE smartcare_release"
 ```
+
+```bash
+cd apps/web && DATABASE_URI=postgres://smartcare:smartcare@localhost:5433/smartcare_release pnpm migrate && cd ../..
+```
+
+```bash
+docker exec smart-care-postgres-1 sh -c 'pg_dump -U smartcare -d smartcare --data-only -Fc "--exclude-table-data=payload_migrations*" -f /tmp/data.dump && pg_restore -U smartcare -d smartcare_release --data-only --disable-triggers --exit-on-error /tmp/data.dump'
+```
+
+```bash
+docker exec smart-care-postgres-1 pg_dump -U smartcare -Fc smartcare_release > smartcare.dump
+```
+
+Upload it with the images:
 
 ```bash
 scp smartcare.dump deploy@YOUR_IP:/opt/smart-care/ && scp -r apps/web/media deploy@YOUR_IP:/opt/smart-care/media-upload
@@ -342,7 +345,7 @@ cd /opt/smart-care && docker compose up -d --wait postgres
 ```
 
 ```bash
-docker compose exec -T postgres pg_restore -U smartcare -d smartcare --no-owner < smartcare.dump
+docker compose exec -T postgres pg_restore -U smartcare -d smartcare --no-owner --exit-on-error < smartcare.dump
 ```
 
 Create the media volume and copy the images into it (owned by the container's `node` user, uid 1000):
@@ -396,8 +399,8 @@ Then trigger the automatic pipeline once, so you know future pushes deploy by th
 - [ ] Home, `/products`, a product line, and `/contact` show real content and images
 - [ ] `/admin` logs in; uploading an image works, and it is still there after
       `docker compose restart web`
-- [ ] Sending the contact form delivers an email to the product line's notify inbox (or
-      `CONTACT_FALLBACK_EMAIL`), and replying goes to the customer
+- [ ] The contact form opens WhatsApp with the message prefilled, addressed to the company number
+      (try it from a phone, and with a product via "Send Inquiry")
 - [ ] `/sitemap.xml` and `/robots.txt` use `https://smartcareco.com`
 - [ ] `sudo ufw status` shows only 22, 80, 443; `ss -tlnp | grep 5432` shows `127.0.0.1` only
 
@@ -486,14 +489,13 @@ Then connect to `postgres://smartcare:<POSTGRES_PASSWORD>@localhost:5434/smartca
 
 ## 17. Troubleshooting
 
-| Symptom                                     | Check                                                                                                                                                                  |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Browser shows a certificate error           | `docker compose logs caddy`. Usually DNS not pointing at `YOUR_IP` yet, Cloudflare proxy (orange) on, or port 80 blocked. Fix it, then `docker compose restart caddy`. |
-| `502 Bad Gateway`                           | `web` is down or still starting: `docker compose ps`, `docker compose logs web`.                                                                                       |
-| `Invalid environment variables` in web logs | The named key in `.env` is missing or malformed. Fix it, then `docker compose up -d`.                                                                                  |
-| `denied` or `unauthorized` when pulling     | Redo step 9 (`docker login ghcr.io`), check `GHCR_OWNER=yasserrabie`.                                                                                                  |
-| CI deploy job: `ssh: handshake failed`      | `VPS_SSH_KEY` must be the private key with BEGIN/END lines; `VPS_USER` must be `deploy`; test with step 10's `ssh -i` command.                                         |
-| Pages error, logs show `reading 'replace'`  | Site Settings has no phone number. Fill it in at `/admin`.                                                                                                             |
-| Inquiry emails do not arrive                | Resend domain not verified, or `EMAIL_FROM` is not on `smartcareco.com`. Inquiries are still saved in Admin → Inquiries; check `docker compose logs web`.              |
-| Turnstile widget fails                      | Add the hostname to the Turnstile widget, and check the keys in `.env` belong to that widget.                                                                          |
-| Disk full                                   | `docker system prune -af` (removes unused images), then check `backups/`.                                                                                              |
+| Symptom                                                     | Check                                                                                                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser shows a certificate error                           | `docker compose logs caddy`. Usually DNS not pointing at `YOUR_IP` yet, Cloudflare proxy (orange) on, or port 80 blocked. Fix it, then `docker compose restart caddy`. |
+| `502 Bad Gateway`                                           | `web` is down or still starting: `docker compose ps`, `docker compose logs web`.                                                                                       |
+| `Invalid environment variables` in web logs                 | The named key in `.env` is missing or malformed. Fix it, then `docker compose up -d`.                                                                                  |
+| `denied` or `unauthorized` when pulling                     | Redo step 9 (`docker login ghcr.io`), check `GHCR_OWNER=yasserrabie`.                                                                                                  |
+| CI deploy job: `ssh: handshake failed`                      | `VPS_SSH_KEY` must be the private key with BEGIN/END lines; `VPS_USER` must be `deploy`; test with step 10's `ssh -i` command.                                         |
+| Pages error, logs show `reading 'replace'`                  | Site Settings has no phone number. Fill it in at `/admin`.                                                                                                             |
+| WhatsApp opens the wrong chat or says the number is invalid | Fix **Site Settings → WhatsApp number**: digits only, country code first, no `+` or spaces.                                                                            |
+| Disk full                                                   | `docker system prune -af` (removes unused images), then check `backups/`.                                                                                              |
