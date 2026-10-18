@@ -71,7 +71,7 @@ jobs:
           context: .
           file: apps/web/Dockerfile
           push: true
-          build-args: NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL }}
+          build-args: NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL || 'https://smartcareco.com' }}
           tags: |
             ${{ steps.image.outputs.name }}:latest
             ${{ steps.image.outputs.name }}:${{ github.sha }}
