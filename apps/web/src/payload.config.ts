@@ -7,6 +7,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { env, parseEmailFrom } from './lib/env'
+import { migrations } from './migrations'
 import { Categories } from './payload/collections/Categories'
 import { Faqs } from './payload/collections/Faqs'
 import { Inquiries } from './payload/collections/Inquiries'
@@ -56,6 +57,8 @@ export default buildConfig({
     pool: {
       connectionString: env.DATABASE_URI,
     },
+    // The standalone image has no Payload CLI, so pending migrations run when the server starts.
+    prodMigrations: migrations,
   }),
   email,
   sharp,

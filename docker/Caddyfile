@@ -1,0 +1,8 @@
+smartcareco.com {
+	encode zstd gzip
+	reverse_proxy web:3000
+}
+
+www.smartcareco.com {
+	redir https://smartcareco.com{uri} permanent
+}
