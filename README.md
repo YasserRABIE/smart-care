@@ -18,6 +18,10 @@ Site: http://localhost:3000. Admin: http://localhost:3000/admin (the first accou
 
 To load the design's content and images, set `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` in `apps/web/.env` and run `pnpm seed` (safe to re-run; `pnpm seed -- --reset` wipes catalog and content first). Restart `pnpm dev` afterwards so cached pages pick up the new content.
 
+## Deployment
+
+Production runs on a Hostinger VPS with Docker Compose (Caddy + app + Postgres); every push to `main` deploys through CI. Server setup, backups, and operations: [docs/DEPLOY.md](docs/DEPLOY.md).
+
 ## Scripts
 
 | Command                                               | What it does                                        |
